@@ -1,0 +1,58 @@
+--- mod_auth_radius-1.5.8/httpd.conf.orig	2009-05-16 10:31:47.000000000 +0200
++++ mod_auth_radius-1.5.8/httpd.conf	2015-04-01 21:29:22.804391917 +0200
+@@ -1,14 +1,7 @@
+ ######################################################################
+-#  Modifications to the httpd.conf file for mod_auth_radius.c
++#  Additions to the httpd.conf file for mod_auth_radius.c
+ #  written by Alan DeKok <aland@freeradius.org>
+ #
+-#  Version: $Id$
+-#
+-######################################################################
+-#
+-#  These configuration options should be ADDED to the httpd.conf file
+-#  for your site.
+-#
+ ######################################################################
+ 
+ 
+@@ -16,17 +9,7 @@
+ #
+ # Tell Apache to load the module.
+ #
+-LoadModule radius_auth_module   libexec/mod_auth_radius.so
+-# the path to the module file will depend on your Apache installation, e.g.
+-#LoadModule radius_auth_module /usr/lib/apache2/modules/mod_auth_radius.so
+-
+-######################################################################
+-#
+-# With Apache 1.x, it is necessary to add an 'AddModule' statement.
+-#  The order of the modules listed by 'AddModule' can be important.
+-# This seems to work:
+-# just AFTER 'AddModule mod_auth.c' add:
+-# AddModule mod_auth_radius.c
++LoadModule radius_auth_module   modules/mod_auth_radius.so
+ 
+ 
+ ######################################################################
+@@ -92,20 +75,6 @@
+ #
+ AuthName "RADIUS authentication for localhost"
+ 
+-# Apache 1.x specific settings:
+-#
+-# don't use 'mod_auth'.
+-# You might want to disable other authentication types here.
+-# You can get a similar effect by commenting out the
+-# 'AddModule mod_auth_*' lines, previously in httpd.conf
+-#
+-#AuthAuthoritative off
+-#
+-# Use mod_auth_radius for all authentication, and make the responses
+-# from it authoritative.
+-#
+-#AuthRadiusAuthoritative on
+-
+ # Apache 2.x specific setting:
+ #
+ # Set RADIUS to be the provider for this basic authentication

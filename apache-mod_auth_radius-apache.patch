@@ -1,0 +1,57 @@
+--- mod_auth_radius-1.5.8/mod_auth_radius-2.0.c.orig	2009-05-16 10:31:47.000000000 +0200
++++ mod_auth_radius-1.5.8/mod_auth_radius-2.0.c	2015-03-31 22:13:50.312803792 +0200
+@@ -288,6 +288,8 @@
+  */
+ 
+ #include <netdb.h>
++#include <unistd.h>
++#include <arpa/inet.h>
+ #include <openssl/md5.h>
+ #include <sys/stat.h>
+ 
+@@ -534,10 +536,12 @@
+ }
+ 
+ static const char *
+-set_int_slot(cmd_parms *cmd, char *struct_ptr, const char *arg)
++set_int_slot(cmd_parms *cmd, void *mconfig, const char *arg)
+ {
+-  int offset = (int)cmd->info; 
+-  *(int *)(struct_ptr + offset) = atoi(arg);
++  char *struct_ptr = mconfig;
++  int offset = (int)cmd->info;
++  int *ptr = (int*)(struct_ptr + offset);
++  *ptr = atoi(arg);
+   return NULL;
+ }
+ 
+@@ -680,7 +684,7 @@
+    * benefit here.
+    */  
+   apr_snprintf(one, COOKIE_SIZE, "%s%s%s%s%s%08x", scr->secret,
+-	      r->user, passwd, c->remote_ip, hostname, expires);
++	      r->user, passwd, r->useragent_ip, hostname, (unsigned)expires);
+ 
+   /* if you're REALLY worried about what's going on */
+ 
+@@ -697,10 +701,10 @@
+   apr_snprintf(two, COOKIE_SIZE, "%s%s", scr->secret, ap_md5(r->pool, one));
+   if (string == NULL) {
+     apr_snprintf(cookie, COOKIE_SIZE, "%s%08x",
+-		ap_md5(r->pool, two), expires);
++		ap_md5(r->pool, two), (unsigned)expires);
+   } else {
+     apr_snprintf(cookie, COOKIE_SIZE, "%s%08x%s",
+-		ap_md5(r->pool, two), expires, string);
++		ap_md5(r->pool, two), (unsigned)expires, string);
+   }
+   return cookie;
+ }
+@@ -1310,7 +1314,6 @@
+ /* Apache 2.1+ */
+     static const char * const aszPost[]={ "mod_authz_user.c", NULL };
+     ap_register_provider(p, AUTHN_PROVIDER_GROUP, "radius", "0", &authn_radius_provider);
+-    ap_hook_check_user_id(authenticate_basic_user,NULL,aszPost,APR_HOOK_MIDDLE);
+ }
+ 
+ module AP_MODULE_DECLARE_DATA radius_auth_module =
